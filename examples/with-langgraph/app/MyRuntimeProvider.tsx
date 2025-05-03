@@ -9,8 +9,10 @@ import {
 import { useLangGraphRuntime } from "@assistant-ui/react-langgraph";
 import { createThread, getThreadState, sendMessage } from "@/lib/chatApi";
 import { LangChainMessage } from "@assistant-ui/react-langgraph";
+import { RepoProvider, useRepo } from "@/components/assistant-ui/repo-context";
 
 const useMyLangGraphRuntime = () => {
+  const { selectedRepo } = useRepo();
   const threadListItemRuntime = useThreadListItemRuntime();
   const runtime = useLangGraphRuntime({
     stream: async function* (messages) {
@@ -20,6 +22,7 @@ const useMyLangGraphRuntime = () => {
       const generator = sendMessage({
         threadId: externalId,
         messages,
+        selectedRepo,
       });
 
       yield* generator;
@@ -60,8 +63,10 @@ export function MyRuntimeProvider({
   });
 
   return (
-    <AssistantRuntimeProvider runtime={runtime}>
-      {children}
-    </AssistantRuntimeProvider>
+    <RepoProvider>
+      <AssistantRuntimeProvider runtime={runtime}>
+        {children}
+      </AssistantRuntimeProvider>
+    </RepoProvider>
   );
 }
